@@ -1,6 +1,7 @@
 package mobile_proto_16.com.myapplication;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -10,21 +11,14 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-
-import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
-
 import org.json.JSONArray;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
-
-
 import org.json.JSONException;
-
-import java.io.Console;
+import org.json.JSONObject;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -40,9 +34,14 @@ public class MainActivityFragment extends Fragment {
     private Response.Listener<String> responseListener = new Response.Listener<String>() {
         @Override
         public void onResponse(String response) {
-            // YOUR CODE HERE. DO SOMETHING WHEN A RESPONSE COMES IN.
-            // Hint: remove the first three characters, parse the response into a JSONArray,
-            // and pass it into your extractPriceFromJSON() function.
+            try {
+                //remove the first 3 characters and parse it into JSONArray
+                JSONArray jsonArray = new JSONArray(response.substring(3));
+                // get the price and show it in the TextView
+                price.setText(extractPriceFromJSON(jsonArray));
+            }catch(JSONException e){
+                e.printStackTrace();
+            }
         }
     };
 
@@ -61,18 +60,19 @@ public class MainActivityFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_main, container, false);
-        ButterKnife.bind(this, view);
+        ButterKnife.bind(this, view); // bind the current view
 
         final Context c = this.getContext();
 
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String url = buildSearchURL(input.getText().toString());
-                // YOUR CODE HERE.
-                //
-                // Create a StringRequest using the URL and the listeners declared above.
-                // Add the request to your RequestQueue from your MySingleton class
+                // build the url from input
+                String url = buildSearchURL(input.getText().toString()); // build the url from input
+                // create new string request
+                StringRequest stringRequest = new StringRequest(url,responseListener,errorListener);
+                // add the string request into the queue
+                MySingleton.getInstance(c).addToRequestQueue(stringRequest);
             }
         });
 
@@ -80,14 +80,21 @@ public class MainActivityFragment extends Fragment {
     }
 
     private String buildSearchURL(String companyTicker) {
-        // YOUR CODE HERE
-        // USE URIBuilder
-        return "";
+        // build the url using uri builder
+        Uri.Builder builder = new Uri.Builder();
+        builder.scheme("https")
+                .authority("finance.google.com")
+                .appendPath("finance")
+                .appendPath("info")
+                .appendQueryParameter("client", "iq")
+                .appendQueryParameter("q", companyTicker);
+        String myUrl = builder.build().toString();
+        return myUrl; // return a url
     }
 
     private String extractPriceFromJSON(JSONArray array) throws JSONException {
-        // Your code here. Extract the price value from the JSON array
-        return "";
+        JSONObject result = (JSONObject) array.get(0); // get the json object from the array
+        return result.getString("l"); // return the price
     }
 
 }
