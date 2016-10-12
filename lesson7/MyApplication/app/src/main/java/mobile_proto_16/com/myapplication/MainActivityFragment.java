@@ -39,6 +39,10 @@ public class MainActivityFragment extends Fragment {
                 JSONArray jsonArray = new JSONArray(response.substring(3));
                 // get the price and show it in the TextView
                 price.setText(extractPriceFromJSON(jsonArray));
+
+                // On my phone the keyboard hides the TextView price. I didn't know I got a response
+                // until I minimized the keyboard. Consider automatically minimizing the keyboard once
+                // the user taps on Price button or moving the TextView into the top half of the screen
             }catch(JSONException e){
                 e.printStackTrace();
             }
@@ -50,6 +54,7 @@ public class MainActivityFragment extends Fragment {
         public void onErrorResponse(VolleyError error) {
             Log.e(TAG, "A VolleyError occurred.");
             error.printStackTrace();
+            // Maybe add toasts to your app. https://developer.android.com/guide/topics/ui/notifiers/toasts.html
         }
     };
 
