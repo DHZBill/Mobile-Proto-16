@@ -12,7 +12,7 @@ public class MySingleton {
                private MySingleton(Context context) {
                 mCtx = context;
                 mRequestQueue = getRequestQueue();
-            }
+            } // Use proper indentation
 
                 public static synchronized MySingleton getInstance(Context context) {
                 if (mInstance == null) {
